@@ -1,9 +1,17 @@
 # File: .github/workflows/workflow.yml
 
+#============================================================================================
+#      FILE NAME: Packer.yml
+#      USAGE: Runs packer template code to create the image
+#      VERSION: 1.0
+#      AUTHOR: Sivalakshmana Kumar Koliseti
+#      DEPARTMENT: Platform Team
+#============================================================================================
+
 on:
   workflow_dispatch:
 
-name: AzureCLISample
+name: Packer deployment Windows
 
 jobs:
   packer:
