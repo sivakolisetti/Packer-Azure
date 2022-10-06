@@ -1,0 +1,75 @@
+# File: .github/workflows/workflow.yml
+
+on:
+  workflow_dispatch:
+
+name: AzureCLISample
+
+jobs:
+
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Azure CLI script
+      uses: azure/CLI@v1
+      with:
+        azcliversion: 2.30.0
+        inlineScript: |
+            #Create Shared Image Gallery
+                $re
+                az sig create --resource-group myPackergroup --gallery-name winhub
+                
+                #Create Image definition for the above Shared Image Gallery
+                az sig image-definition create \
+                --resource-group myPackergroup \
+                --gallery-name winhub \
+                --gallery-image-definition shared_windows10 \
+                --publisher MicrosoftWindowsDesktop \
+                --offer Windows-10 \
+                --sku win10-21h2-pro \
+                --os-type Windows
+  packer:
+    runs-on: ubuntu-latest
+    name: packer
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      # fix backwards incompatibilities in template
+      #- name: Fix Template
+       # uses: hashicorp/packer-github-actions@master
+        #with:
+         # command: fix
+
+      # validate templates
+      - name: Validate Template
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: validate
+          arguments: -syntax-only
+          target: PackerWindow10Pro.pkr.hcl
+
+
+
+      # build artifact
+      - name: Build Artifact
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: build
+          arguments: "-color=false -on-error=abort"
+          PKR_VAR_client_id: ${{ secrets.AZURE_AD_CLIENT_ID }}
+          PKR_VAR_client_secret: ${{ secrets.AZURE_AD_CLIENT_SECRET }}
+          PKR_VAR_tenant_id: ${{ secrets.AZURE_AD_TENANT_ID }}
+          target: PackerWindow10Pro.pkr.hcl
+          working_directory: '.'
+        env:
+          PACKER_LOG: 1
+          HCP_CLIENT_ID: ${{ secrets.AZURE_AD_CLIENT_ID }}
+          HCP_CLIENT_SECRET: ${{ secrets.AZURE_AD_CLIENT_SCERET }}
