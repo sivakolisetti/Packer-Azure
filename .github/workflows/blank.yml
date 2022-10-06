@@ -36,9 +36,13 @@ jobs:
         with:
           command: build
           arguments: "-color=false -on-error=abort"
+          PKR_VAR_client_id: ${{ secrets.AZURE_AD_CLIENT_ID }}
+          PKR_VAR_client_secret: ${{ secrets.AZURE_AD_CLIENT_SECRET }}
+          PKR_VAR_tenant_id: ${{ secrets.AZURE_AD_TENANT_ID }}
           target: PackerWindow10Pro.pkr.hcl
+          var-file: variable.pkrvars.hcl
           working_directory: '.'
         env:
           PACKER_LOG: 1
-          HCP_CLIENT_ID: ${{ secrets.AZURE_AD_CLIENT_ID }}
-          HCP_CLIENT_SECRET: ${{ secrets.AZURE_AD_CLIENT_SCERET }}
+          #HCP_CLIENT_ID: ${{ secrets.AZURE_AD_CLIENT_ID }}
+          #HCP_CLIENT_SECRET: ${{ secrets.AZURE_AD_CLIENT_SCERET }}
